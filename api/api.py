@@ -177,6 +177,10 @@ def get_profile():
         detail['mrt'] = row.p.text
         detail['address'] = row.find('p', class_='js-intro-mc-address-container').text
 
+        detail['address'] = (detail['address'].replace("\n", "")).strip()
+        detail['operating_hours'] = (detail['operating_hours'].replace("\n", "")).strip()
+
+
         details.append(detail)
     # print(bestrate_table.prettify)
     return jsonify(details)
