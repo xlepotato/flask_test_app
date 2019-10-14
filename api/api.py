@@ -4,6 +4,8 @@ from bs4 import BeautifulSoup
 import urllib.request
 import re
 import requests
+from selenium import webdriver
+
 
 
 
@@ -14,6 +16,8 @@ import requests
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 
+# driver = webdriver.Chrome(r'C:\Users\WNG056\Downloads\chromedriver_win32\chromedriver.exe')
+# driver.get('https://cashchanger.co/singapore')
 
 
 # Create some test data for our catalog in the form of a list of dictionaries.
@@ -174,17 +178,78 @@ def get_profile():
         detail['name'] = row.find('h1', class_='text-black').text
         detail['operating_hours'] = row.find('p', class_='js-intro-openinghours-container').text
         detail['tel_No'] = row.find('p', class_='js-intro-mc-phone-container contact').a['href']
-        detail['mrt'] = row.p.text
+        detail['mrt'] = row.find_all('p')[2].text
         detail['address'] = row.find('p', class_='js-intro-mc-address-container').text
 
-        detail['address'] = (detail['address'].replace("\n", "")).strip()
-        detail['operating_hours'] = (detail['operating_hours'].replace("\n", "")).strip()
-
+        # Clean data
+        detail['mrt'] = (detail['mrt'].replace("\n", "")).strip()
+        detail['address'] = (detail['address'].replace("\n", "")).strip().partition("      ")[0]
+        detail['operating_hours'] = (detail['operating_hours'].replace("\n", "")).strip().replace("  ", "")
+        # .replace("  ","")
 
         details.append(detail)
     # print(bestrate_table.prettify)
     return jsonify(details)
 
+
+
+@app.route('/api/v1/resources/moneychanger/profile2', methods=['GET'])
+def get_profile2():
+    driver = webdriver.Chrome(r'C:\Users\WNG056\Downloads\chromedriver_win32\chromedriver.exe')
+    driver.get('https://cashchanger.co/singapore/sgd-to-aud')
+    pika = driver.find_element_by_id('currencyresult-area')
+
+    clean_list = pika.text.split('\n')
+
+    # clean_list
+    # clean_list = [clean_list[i::6] for i in range(6)]
+
+
+    pika2 = driver.find_element_by_id('currencyresult-area2')
+    clean_list2 = pika2.text.split('\n')
+
+    # clean_list3 = clean_list.extend(clean_list2)
+
+
+    # clean_list = [i.split('\t') for i in clean_list]
+
+    details = []
+    # print(pika)
+    # nyo = driver.find_element_by_class_name('currency-item')
+    # print(nyo.text)
+    # for i in pika:
+    #     print(i.text.split('\n'))
+
+    clean_list = [clean_list[x:x + 7] for x in range(0, len(clean_list), 7)]
+    clean_list2 = [clean_list2[x:x + 7] for x in range(0, len(clean_list), 7)]
+
+    print(clean_list)
+    print(clean_list2)
+
+
+
+    # for j in nyo:
+    #     print(j)
+
+    # bestrate_table = best_rate_container.find_all('div', class_='bestrate')
+    # for row in profile.find_all('div', class_='profile-card box'):
+    #     print(row.prettify)
+    #     detail = {}
+    #     detail['name'] = row.find('h1', class_='text-black').text
+    #     detail['operating_hours'] = row.find('p', class_='js-intro-openinghours-container').text
+    #     detail['tel_No'] = row.find('p', class_='js-intro-mc-phone-container contact').a['href']
+    #     detail['mrt'] = row.find_all('p')[2].text
+    #     detail['address'] = row.find('p', class_='js-intro-mc-address-container').text
+    #
+    #     # Clean data
+    #     detail['mrt'] = (detail['mrt'].replace("\n", "")).strip()
+    #     detail['address'] = (detail['address'].replace("\n", "")).strip().partition("      ")[0]
+    #     detail['operating_hours'] = (detail['operating_hours'].replace("\n", "")).strip().replace("  ", "")
+    #     # .replace("  ","")
+    #
+    #     details.append(detail)
+    # print(bestrate_table.prettify)
+    return ""
 
 
 
