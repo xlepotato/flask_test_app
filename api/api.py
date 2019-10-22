@@ -313,77 +313,72 @@ def get_moneychanger2():
 
     for i in range(1,3):
         driver.get('https://cashchanger.co/singapore/mc/firman-hah-international-exchange/' + str(i))
-        test = driver.find_elements_by_class_name('mc-detail')
+        mc_detail = driver.find_elements_by_class_name('mc-detail')
         detail = {}
-        print(driver.find_element_by_xpath('/html/body/div[1]/div/div[2]/div[1]/section[2]/div/div[1]/div/div/div[1]/img').get_attribute('src'))
-        detail['img'] = driver.find_element_by_xpath('/html/body/div[1]/div/div[2]/div[1]/section[2]/div/div[1]/div/div/div[1]/img').get_attribute('src')
-        for v in test:
+        detail['img'] = driver.find_element_by_xpath('/html/body/div[1]/div/div[2]/div[1]/section[2]/div/div[1]/div/div/div[1]/img').get_attribute('src')  # get the img src
+        for row in mc_detail:
             currencies = []
-            a = v.text.split('\n')
-            if a[0] != '':
+            col = row.text.split('\n')
+            if col[0] != '':  # check if there is empty data
                 try:
+                    # if operating hours info is available
                     driver.find_element_by_class_name('js-intro-openinghours-container')
-                    print(a)
-                    detail['moneychanger_name'] = a[0]
-                    detail['operating_hours'] = a[1]
-                    detail['tel_No'] = a[2]
-                    detail['mrt'] = a[3]
-                    detail['address'] = a[4]
-
-
+                    detail['moneychanger_name'] = col[0]
+                    detail['operating_hours'] = col[1]
+                    detail['tel_No'] = col[2]
+                    detail['mrt'] = col[3]
+                    detail['address'] = col[4]
                 except:
-                    detail['moneychanger_name'] = a[0]
+                    # if operating hours info is unavailable
+                    detail['moneychanger_name'] = col[0]
                     detail['operating_hours'] = '-'
-                    detail['tel_No'] = a[1]
-                    detail['mrt'] = a[2]
-                    detail['address'] = a[3]
+                    detail['tel_No'] = col[1]
+                    detail['mrt'] = col[2]
+                    detail['address'] = col[3]
         try:
-            test2 = driver.find_element_by_class_name('mc-currencyratetable')
-            nyan = test2.find_elements_by_class_name(' currencybox-rate')
-            for y in nyan:
+            currency_table = driver.find_element_by_class_name('mc-currencyratetable')
+            currency_data = currency_table.find_elements_by_class_name(' currencybox-rate')
+            for row in currency_data:
                 currency = {}
-                a = y.text.split('\n')
-                if a[0] != '':
-                    print(a)
-                    inverseR = y.find_elements_by_class_name('inverserate')
-                    print(inverseR[0].text)
-                    print(inverseR[1].text)
-                    if inverseR[0].text != '':
-                        currency['currency_code'] = a[0]
-                        currency['currency_name'] = a[1]
-                        currency['exchange_rate_buy'] = a[2]
-                        currency['rate_buy'] = a[3]
-                        currency['last_update_buy'] = a[4]
-                        currency['exchange_rate_sell'] = a[5]
-                        if inverseR[1].text != '':
-                            currency['rate_sell'] = a[6]
-                            currency['last_update_sell'] = a[7]
-                        else:
+                col = row.text.split('\n')
+                if col[0] != '':
+                    inverse_rate = row.find_elements_by_class_name('inverserate')
+                    if inverse_rate[0].text != '':  # check if the rate display info for buy is available
+                        currency['currency_code'] = col[0]
+                        currency['currency_name'] = col[1]
+                        currency['exchange_rate_buy'] = col[2]
+                        currency['rate_buy'] = col[3]
+                        currency['last_update_buy'] = col[4]
+                        currency['exchange_rate_sell'] = col[5]
+                        if inverse_rate[1].text != '': # check if the rate display info for sell is available
+                            currency['rate_sell'] = col[6]
+                            currency['last_update_sell'] = col[7]
+                        else:  # rate display info for sell is missing
                             currency['rate_sell'] = '-'
-                            currency['last_update_sell'] = a[6]
-                    else:
-                        currency['currency_code'] = a[0]
-                        currency['currency_name'] = a[1]
-                        currency['exchange_rate_buy'] = a[2]
+                            currency['last_update_sell'] = col[6]
+                    else:  # rate display info for buy is missing
+                        currency['currency_code'] = col[0]
+                        currency['currency_name'] = col[1]
+                        currency['exchange_rate_buy'] = col[2]
                         currency['rate_buy'] = '-'
-                        currency['last_update_buy'] = a[3]
-                        currency['exchange_rate_sell'] = a[4]
-                        if inverseR[1].text != '':
-                            currency['rate_sell'] = a[5]
-                            currency['last_update_sell'] = a[6]
-                        else:
+                        currency['last_update_buy'] = col[3]
+                        currency['exchange_rate_sell'] = col[4]
+                        if inverse_rate[1].text != '':   # check if the rate display info for sell is available
+                            currency['rate_sell'] = col[5]
+                            currency['last_update_sell'] = col[6]
+                        else: # rate display info for sell is missing
                             currency['rate_sell'] = '-'
-                            currency['last_update_sell'] = a[5]
-                    currencies.append(currency)
+                            currency['last_update_sell'] = col[5]
+                    currencies.append(currency)  # append all the available currencies offered by a particular money changer to a list
             detail['currency_table'] = currencies
             details.append(detail)
         except Exception as e:
             print(e)
-            pass
+            pass  # skip the page if the relevant info of the money changer is not available to scrape
     for k in details:
         print(k)
-    print(len(details))
-    return jsonify(details)
+    print(len(details)) # print the length of the data scrapped
+    return jsonify(details)  # return the data in json format
 
 
 
