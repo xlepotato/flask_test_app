@@ -7,6 +7,16 @@ import requests
 from selenium import webdriver
 
 
+GOOGLE_CHROME_PATH = '/app/.apt/usr/bin/google_chrome'
+CHROMEDRIVER_PATH = '/app/.chromedriver/bin/chromedriver'
+
+chrome_options = webdriver.ChromeOptions()
+chrome_options.add_argument('--disable-gpu')
+chrome_options.add_argument('--no-sandbox')
+chrome_options.addArguments("--headless");
+chrome_options.binary_location = GOOGLE_CHROME_PATH
+
+browser = webdriver.Chrome(execution_path=CHROMEDRIVER_PATH, chrome_options=chrome_options)
 
 
 #find: Get a single match result
@@ -145,11 +155,14 @@ def get_moneychanger2():
     driver = webdriver.Chrome(r'C:\Users\WNG056\Downloads\chromedriver_win32\chromedriver.exe')
     details = []
 
-    for i in range(1,3):
+    for i in range(1,212):
         driver.get('https://cashchanger.co/singapore/mc/firman-hah-international-exchange/' + str(i))
         mc_detail = driver.find_elements_by_class_name('mc-detail')
         detail = {}
-        detail['img'] = driver.find_element_by_xpath('/html/body/div[1]/div/div[2]/div[1]/section[2]/div/div[1]/div/div/div[1]/img').get_attribute('src')  # get the img src
+        try:
+            detail['img'] = driver.find_element_by_xpath('/html/body/div[1]/div/div[2]/div[1]/section[2]/div/div[1]/div/div/div[1]/img').get_attribute('src')  # get the img src
+        except:
+            continue
         for row in mc_detail:
             currencies = []
             col = row.text.split('\n')
