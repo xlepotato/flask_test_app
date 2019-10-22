@@ -329,7 +329,6 @@ def get_moneychanger2():
                     detail['tel_No'] = a[2]
                     detail['mrt'] = a[3]
                     detail['address'] = a[4]
-                    # print(v.find_element_by_class_name('image-con col-xs-4 col-sm-4 col-md-12').get_attribute('src'))
 
 
                 except:
@@ -338,8 +337,6 @@ def get_moneychanger2():
                     detail['tel_No'] = a[1]
                     detail['mrt'] = a[2]
                     detail['address'] = a[3]
-                    # detail['img'] = v.get_attribute("src")
-                    # print(v.find_element_by_class_name('image-con col-xs-4 col-sm-4 col-md-12').get_attribute('src'))
         try:
             test2 = driver.find_element_by_class_name('mc-currencyratetable')
             nyan = test2.find_elements_by_class_name(' currencybox-rate')
@@ -378,66 +375,14 @@ def get_moneychanger2():
                             currency['rate_sell'] = '-'
                             currency['last_update_sell'] = a[5]
                     currencies.append(currency)
-            # for kk in currencies:
-            #     print(kk)
             detail['currency_table'] = currencies
-
-                # detail['moneychanger_name'] = a[0]
-                # detail['operating_hours'] = a[1]
-                # detail['tel_No'] = a[2]
-                # detail['mrt'] = a[3]
-                # detail['address'] = a[4]
-                # details.append(detail)
             details.append(detail)
-
         except Exception as e:
             print(e)
             pass
     for k in details:
         print(k)
     print(len(details))
-
-    #     detail = {}
-    #     detail['name'] = row.find('h1', class_='text-black').text
-    #     detail['operating_hours'] = row.find('p', class_='js-intro-openinghours-container').text
-    #     detail['tel_No'] = row.find('p', class_='js-intro-mc-phone-container contact').a['href']
-    #     detail['mrt'] = row.find_all('p')[2].text
-    #     detail['address'] = row.find('p', class_='js-intro-mc-address-container').text
-
-
-    # content []
-
-    # c = c.partition("      ")[0]
-
-    # clean_list = [clean_list[x:x + 7] for x in range(0, len(clean_list), 7)]
-    # clean_list2 = [clean_list2[x:x + 7] for x in range(0, len(clean_list2), 7)]
-
-    # print(clean_list)
-    # print(clean_list2)
-
-
-
-    # for j in nyo:
-    #     print(j)
-
-    # bestrate_table = best_rate_container.find_all('div', class_='bestrate')
-    # for row in profile.find_all('div', class_='profile-card box'):
-    #     print(row.prettify)
-    #     detail = {}
-    #     detail['name'] = row.find('h1', class_='text-black').text
-    #     detail['operating_hours'] = row.find('p', class_='js-intro-openinghours-container').text
-    #     detail['tel_No'] = row.find('p', class_='js-intro-mc-phone-container contact').a['href']
-    #     detail['mrt'] = row.find_all('p')[2].text
-    #     detail['address'] = row.find('p', class_='js-intro-mc-address-container').text
-    #
-    #     # Clean data
-    #     detail['mrt'] = (detail['mrt'].replace("\n", "")).strip()
-    #     detail['address'] = (detail['address'].replace("\n", "")).strip().partition("      ")[0]
-    #     detail['operating_hours'] = (detail['operating_hours'].replace("\n", "")).strip().replace("  ", "")
-    #     # .replace("  ","")
-    #
-    #     details.append(detail)
-    # print(bestrate_table.prettify)
     return jsonify(details)
 
 
