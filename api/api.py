@@ -197,16 +197,23 @@ def get_profile():
 def get_profile2():
     driver = webdriver.Chrome(r'C:\Users\WNG056\Downloads\chromedriver_win32\chromedriver.exe')
     driver.get('https://cashchanger.co/singapore/sgd-to-aud')
-    pika = driver.find_element_by_id('currencyresult-area')
-
-    clean_list = pika.text.split('\n')
+    # pika = driver.find_element_by_id('currencyresult-area')
+    #
+    # clean_list = pika.text.split('\n')
 
     # clean_list
     # clean_list = [clean_list[i::6] for i in range(6)]
 
 
-    pika2 = driver.find_element_by_id('currencyresult-area2')
-    clean_list2 = pika2.text.split('\n')
+    # pika2 = driver.find_element_by_id('currencyresult-area2')
+    # clean_list2 = pika2.text.split('\n')
+
+
+    test = driver.find_elements_by_class_name('result-box')
+    # clean_list = test.text.split('\n')
+    # print(test)
+
+
 
     # clean_list3 = clean_list.extend(clean_list2)
 
@@ -217,14 +224,56 @@ def get_profile2():
     # print(pika)
     # nyo = driver.find_element_by_class_name('currency-item')
     # print(nyo.text)
-    # for i in pika:
-    #     print(i.text.split('\n'))
+    # c = []
+    location = driver.find_elements_by_class_name('item-location1')
+    train = driver.find_elements_by_class_name('item-location2')
+    for ll in location:
+        print(ll.text)
+    for kk in train:
+        print(kk.text)
 
-    clean_list = [clean_list[x:x + 7] for x in range(0, len(clean_list), 7)]
-    clean_list2 = [clean_list2[x:x + 7] for x in range(0, len(clean_list), 7)]
 
-    print(clean_list)
-    print(clean_list2)
+    details = []
+    n = 0
+    first = True;
+    for i in test:
+        if first:
+            first = False
+        else:
+            a = i.text.split('\n')
+            detail = {}
+            if a[0] != '':
+                # c.append(a)
+                detail['currency_name'] = a[0]
+                detail['exchange_rate'] = a[1]
+                detail['rate'] = a[2]
+                detail['last_update'] = a[3]
+                detail['moneychanger_name'] = a[4]
+
+                detail['location'] = location[n].text
+                detail['mrt'] = train[n].text
+                details.append(detail)
+                n += 1
+    for k in details:
+        print(k)
+
+    #     detail = {}
+    #     detail['name'] = row.find('h1', class_='text-black').text
+    #     detail['operating_hours'] = row.find('p', class_='js-intro-openinghours-container').text
+    #     detail['tel_No'] = row.find('p', class_='js-intro-mc-phone-container contact').a['href']
+    #     detail['mrt'] = row.find_all('p')[2].text
+    #     detail['address'] = row.find('p', class_='js-intro-mc-address-container').text
+
+
+    # content []
+
+    # c = c.partition("      ")[0]
+
+    # clean_list = [clean_list[x:x + 7] for x in range(0, len(clean_list), 7)]
+    # clean_list2 = [clean_list2[x:x + 7] for x in range(0, len(clean_list2), 7)]
+
+    # print(clean_list)
+    # print(clean_list2)
 
 
 
@@ -249,7 +298,147 @@ def get_profile2():
     #
     #     details.append(detail)
     # print(bestrate_table.prettify)
-    return ""
+    return jsonify(details)
+
+
+
+
+
+
+
+@app.route('/api/v1/resources/moneychanger/moneychanger2', methods=['GET'])
+def get_moneychanger2():
+    driver = webdriver.Chrome(r'C:\Users\WNG056\Downloads\chromedriver_win32\chromedriver.exe')
+    details = []
+
+    for i in range(1,3):
+        driver.get('https://cashchanger.co/singapore/mc/firman-hah-international-exchange/' + str(i))
+        test = driver.find_elements_by_class_name('mc-detail')
+        detail = {}
+        print(driver.find_element_by_xpath('/html/body/div[1]/div/div[2]/div[1]/section[2]/div/div[1]/div/div/div[1]/img').get_attribute('src'))
+        detail['img'] = driver.find_element_by_xpath('/html/body/div[1]/div/div[2]/div[1]/section[2]/div/div[1]/div/div/div[1]/img').get_attribute('src')
+        for v in test:
+            currencies = []
+            a = v.text.split('\n')
+            if a[0] != '':
+                try:
+                    driver.find_element_by_class_name('js-intro-openinghours-container')
+                    print(a)
+                    detail['moneychanger_name'] = a[0]
+                    detail['operating_hours'] = a[1]
+                    detail['tel_No'] = a[2]
+                    detail['mrt'] = a[3]
+                    detail['address'] = a[4]
+                    # print(v.find_element_by_class_name('image-con col-xs-4 col-sm-4 col-md-12').get_attribute('src'))
+
+
+                except:
+                    detail['moneychanger_name'] = a[0]
+                    detail['operating_hours'] = '-'
+                    detail['tel_No'] = a[1]
+                    detail['mrt'] = a[2]
+                    detail['address'] = a[3]
+                    # detail['img'] = v.get_attribute("src")
+                    # print(v.find_element_by_class_name('image-con col-xs-4 col-sm-4 col-md-12').get_attribute('src'))
+        try:
+            test2 = driver.find_element_by_class_name('mc-currencyratetable')
+            nyan = test2.find_elements_by_class_name(' currencybox-rate')
+            for y in nyan:
+                currency = {}
+                a = y.text.split('\n')
+                if a[0] != '':
+                    print(a)
+                    inverseR = y.find_elements_by_class_name('inverserate')
+                    print(inverseR[0].text)
+                    print(inverseR[1].text)
+                    if inverseR[0].text != '':
+                        currency['currency_code'] = a[0]
+                        currency['currency_name'] = a[1]
+                        currency['exchange_rate_buy'] = a[2]
+                        currency['rate_buy'] = a[3]
+                        currency['last_update_buy'] = a[4]
+                        currency['exchange_rate_sell'] = a[5]
+                        if inverseR[1].text != '':
+                            currency['rate_sell'] = a[6]
+                            currency['last_update_sell'] = a[7]
+                        else:
+                            currency['rate_sell'] = '-'
+                            currency['last_update_sell'] = a[6]
+                    else:
+                        currency['currency_code'] = a[0]
+                        currency['currency_name'] = a[1]
+                        currency['exchange_rate_buy'] = a[2]
+                        currency['rate_buy'] = '-'
+                        currency['last_update_buy'] = a[3]
+                        currency['exchange_rate_sell'] = a[4]
+                        if inverseR[1].text != '':
+                            currency['rate_sell'] = a[5]
+                            currency['last_update_sell'] = a[6]
+                        else:
+                            currency['rate_sell'] = '-'
+                            currency['last_update_sell'] = a[5]
+                    currencies.append(currency)
+            # for kk in currencies:
+            #     print(kk)
+            detail['currency_table'] = currencies
+
+                # detail['moneychanger_name'] = a[0]
+                # detail['operating_hours'] = a[1]
+                # detail['tel_No'] = a[2]
+                # detail['mrt'] = a[3]
+                # detail['address'] = a[4]
+                # details.append(detail)
+            details.append(detail)
+
+        except Exception as e:
+            print(e)
+            pass
+    for k in details:
+        print(k)
+    print(len(details))
+
+    #     detail = {}
+    #     detail['name'] = row.find('h1', class_='text-black').text
+    #     detail['operating_hours'] = row.find('p', class_='js-intro-openinghours-container').text
+    #     detail['tel_No'] = row.find('p', class_='js-intro-mc-phone-container contact').a['href']
+    #     detail['mrt'] = row.find_all('p')[2].text
+    #     detail['address'] = row.find('p', class_='js-intro-mc-address-container').text
+
+
+    # content []
+
+    # c = c.partition("      ")[0]
+
+    # clean_list = [clean_list[x:x + 7] for x in range(0, len(clean_list), 7)]
+    # clean_list2 = [clean_list2[x:x + 7] for x in range(0, len(clean_list2), 7)]
+
+    # print(clean_list)
+    # print(clean_list2)
+
+
+
+    # for j in nyo:
+    #     print(j)
+
+    # bestrate_table = best_rate_container.find_all('div', class_='bestrate')
+    # for row in profile.find_all('div', class_='profile-card box'):
+    #     print(row.prettify)
+    #     detail = {}
+    #     detail['name'] = row.find('h1', class_='text-black').text
+    #     detail['operating_hours'] = row.find('p', class_='js-intro-openinghours-container').text
+    #     detail['tel_No'] = row.find('p', class_='js-intro-mc-phone-container contact').a['href']
+    #     detail['mrt'] = row.find_all('p')[2].text
+    #     detail['address'] = row.find('p', class_='js-intro-mc-address-container').text
+    #
+    #     # Clean data
+    #     detail['mrt'] = (detail['mrt'].replace("\n", "")).strip()
+    #     detail['address'] = (detail['address'].replace("\n", "")).strip().partition("      ")[0]
+    #     detail['operating_hours'] = (detail['operating_hours'].replace("\n", "")).strip().replace("  ", "")
+    #     # .replace("  ","")
+    #
+    #     details.append(detail)
+    # print(bestrate_table.prettify)
+    return jsonify(details)
 
 
 
