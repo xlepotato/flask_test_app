@@ -1,6 +1,6 @@
 import os
 
-import flask
+from flask import Flask
 from flask import request, jsonify
 from bs4 import BeautifulSoup
 import urllib.request
@@ -22,7 +22,7 @@ chrome_options.add_argument("--headless")
 #findall: Return all matched results
 
 
-app = flask.Flask(__name__)
+app = Flask(__name__)
 app.config["DEBUG"] = True
 
 URL = "https://cashchanger.co/singapore"
