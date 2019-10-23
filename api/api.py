@@ -25,6 +25,7 @@ chrome_options.add_argument("--headless")
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 
+URL = "https://cashchanger.co/singapore"
 
     # # Getting the keywords section
     # keyword_section = soup.find(class_="keywords-section")
@@ -33,6 +34,43 @@ app.config["DEBUG"] = True
     # # Getting a list of all keywords which are inserted into a keywords list in line 7.
     # keywords_raw = keyword_section.find_all(class_="keyword")
     # keyword_list = [word.get_text() for word in keywords_raw]
+
+
+@app.route('/', methods=['GET'])
+def get_home():
+    MONEYCHANGER_URL = "https://cashchanger.co/singapore/mc/simlim-exchange-and-trading/189"
+    try:
+        r = requests.get(MONEYCHANGER_URL)
+    except:
+        print("An error occured.")
+        # soup = BeautifulSoup(page, 'html.parser')
+    soup = BeautifulSoup(r.content, 'html.parser')
+    # print(soup.prettify) # gives the visual representation of the parse tree created from the raw HTML content.
+    profile = soup.find('div', class_='mc-detail')
+    # print(profile.prettify)
+    details = []
+
+    # bestrate_table = best_rate_container.find_all('div', class_='bestrate')
+    for row in profile.find_all('div', class_='profile-card box'):
+        print(row.prettify)
+        detail = {}
+        detail['name'] = row.find('h1', class_='text-black').text
+        detail['operating_hours'] = row.find('p', class_='js-intro-openinghours-container').text
+        detail['tel_No'] = row.find('p', class_='js-intro-mc-phone-container contact').a['href']
+        detail['mrt'] = row.find_all('p')[2].text
+        detail['address'] = row.find('p', class_='js-intro-mc-address-container').text
+
+        # Clean data
+        detail['mrt'] = (detail['mrt'].replace("\n", "")).strip()
+        detail['address'] = (detail['address'].replace("\n", "")).strip().partition("      ")[0]
+        detail['operating_hours'] = (detail['operating_hours'].replace("\n", "")).strip().replace("  ", "")
+        # .replace("  ","")
+
+        details.append(detail)
+    # print(bestrate_table.prettify)
+    return jsonify(details)
+
+
 
 @app.route('/api/v1/resources/currency/bestrate/all', methods=['GET'])
 def api_bestrate():
@@ -68,7 +106,7 @@ def api_bestrate():
 
 
 @app.route('/api/v1/resources/currency/buy/bestrate/all', methods=['GET'])
-def sell_bestrate():
+def buy_bestrate():
     try:
         # page = urllib.request.urlopen(url) # conntect to website
         r = requests.get(URL)
@@ -149,9 +187,10 @@ def get_profile():
 
 
 
-@app.route('/api/v1/resources/moneychanger/moneychanger2', methods=['GET'])
-def get_moneychanger2():
+@app.route('/api/v1/resources/moneychanger/moneychanger', methods=['GET'])
+def get_moneychanger():
     driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chrome_options)
+    # driver = webdriver.Chrome(r'C:\Users\WNG056\Downloads\chromedriver_win32\chromedriver.exe')
     details = []
 
     for i in range(1,212):
