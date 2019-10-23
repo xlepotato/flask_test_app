@@ -1,0 +1,6 @@
+fake-useragent==0.1.11
+PyYAML==5.1.2
+selenium==3.141.0
+ua-parser==0.8.0
+urllib3==1.25.6
+user-agents==2.0
